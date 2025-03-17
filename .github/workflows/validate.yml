@@ -26,14 +26,14 @@ jobs:
 
       - name: Upload errors (if any)
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: validation-errors
           path: validation_errors.txt
 
       - name: Upload success message (if passed)
         if: success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: validation-success
           path: validation_success.txt
