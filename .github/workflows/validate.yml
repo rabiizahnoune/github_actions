@@ -14,9 +14,17 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@4.7.0  # Utilise une version spécifique
+        uses: actions/setup-python@4.7.0
         with:
           python-version: '3.9'
+        continue-on-error: true  # Continue même en cas d'erreur
+      
+      - name: Fallback if setup-python fails
+        if: steps.setup-python.outcome != 'success'
+        run: |
+          echo "Échec de setup-python, installation manuelle de Python..."
+          choco install python --version=3.9.0  # Installe Python via Chocolatey sur Windows
+          python --version
 
       - name: Install dependencies
         run: pip install pandas
