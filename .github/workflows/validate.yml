@@ -17,7 +17,6 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: '3.9'
-        continue-on-error: true  # Continue même en cas d'erreur
 
       - name: Install dependencies
         run: pip install pandas
