@@ -7,7 +7,10 @@ on:
 
 jobs:
   validate-data:
-    runs-on: windows-latest  # Adapté pour Windows
+    runs-on: windows-latest  # Utilise Windows comme environnement
+
+    permissions:
+      issues: write  # Permet l'ajout de commentaires sur les issues
 
     steps:
       - name: Checkout code
@@ -30,6 +33,7 @@ jobs:
         with:
           name: validation-errors
           path: validation_errors.txt
+        continue-on-error: true  # Évite l'arrêt si le fichier n'existe pas
 
       - name: Upload success message (if passed)
         if: success()
@@ -37,15 +41,17 @@ jobs:
         with:
           name: validation-success
           path: validation_success.txt
+        continue-on-error: true
 
       - name: Notify team on failure
         if: failure()
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}  # Utilise GITHUB_TOKEN pour commenter
           script: |
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: 1,
-              body: '⚠️ Erreur dans les données détectée ! Voir les logs pour détails.'
-            })
+              body: "🚨 Une erreur a été détectée dans le workflow !"
+            });
