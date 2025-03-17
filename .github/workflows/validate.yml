@@ -1,0 +1,51 @@
+name: Data Validation Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate-data:
+    runs-on: windows-latest  # Adapté pour Windows
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install pandas
+
+      - name: Run validation
+        run: python validate_data.py
+
+      - name: Upload errors (if any)
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: validation-errors
+          path: validation_errors.txt
+
+      - name: Upload success message (if passed)
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: validation-success
+          path: validation_success.txt
+
+      - name: Notify team on failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: 1,
+              body: '⚠️ Erreur dans les données détectée ! Voir les logs pour détails.'
+            })
